@@ -3,7 +3,7 @@ const fs = require('fs');
 
 const download = require('./download');
 
-const data = { sweets: [] };
+const data = { sweets: [], user_images:[] };
 const readFilePromises = [];
 
 const filePromise = (dirname, filename) => new Promise ((resolve, reject) => {
@@ -11,8 +11,8 @@ const filePromise = (dirname, filename) => new Promise ((resolve, reject) => {
     if (err) {
       reject(err);
     }
-
-    JSON.parse(content).forEach(sweet => {
+    const sweets = JSON.parse(content).sweets;
+    sweets.forEach(sweet => {
       const pointIndex = filename.indexOf('.');
       sweet.tag = filename.substring(0, pointIndex);
       data.sweets.push(sweet);
@@ -34,24 +34,80 @@ function readFiles(dirname) {
       const sweetsJson = JSON.stringify(data, null, 2);
       fs.writeFile('sweets.json', sweetsJson, 'utf8', () => {
         const downloadPromises = [];
-        data.sweets.forEach(sweet => {
-          const { user } = sweet;
-          if (user.profile_background_image_url) {
-            downloadPromises.push(download(user.profile_background_image_url))
+        data.sweets.forEach((sweet, index) => {
+          if (index > 30) {
+            return;
           }
-            profile_background_image_url
-            profile_background_image_url_https
-            profile_image_url
-            profile_image_url_https
-            profile_banner_url
+          const { user } = sweet;
+          const userImagesObject = {
+            id: user.id,
+            id_str: user.id_str
+          };
 
+          if (user.profile_background_image_url) {
+            const fileFormat = getFileFormatByUrl(user.profile_background_image_url);
+            const download_image_url = `images/${user.id_str}${fileFormat}`;
+            downloadPromises.push(download(user.profile_background_image_url, download_image_url));
+            userImagesObject.profile_background_image_url = download_image_url;
+          }
+
+          if (user.profile_background_image_url_https) {
+            const fileFormat = getFileFormatByUrl(user.profile_background_image_url_https);
+            const download_image_url = `images/${user.id_str}${fileFormat}`;
+            downloadPromises.push(download(user.profile_background_image_url_https, download_image_url));
+            userImagesObject.profile_background_image_url_https = download_image_url;
+          }
+
+          if (user.profile_image_url) {
+            const fileFormat = getFileFormatByUrl(user.profile_image_url);
+            const download_image_url = `images/${user.id_str}${fileFormat}`;
+            downloadPromises.push(download(user.profile_image_url, download_image_url));
+            userImagesObject.profile_image_url = download_image_url;
+          }
+
+          if (user.profile_image_url_https) {
+            const fileFormat = getFileFormatByUrl(user.profile_image_url_https);
+            const download_image_url = `images/${user.id_str}${fileFormat}`;
+            downloadPromises.push(download(user.profile_image_url_https, download_image_url));
+            userImagesObject.profile_image_url_https = download_image_url;
+          }
+
+          if (user.profile_banner_url) {
+            const fileFormat = getFileFormatByUrl(user.profile_banner_url);
+            const download_image_url = `images/${user.id_str}${fileFormat}`;
+            downloadPromises.push(download(user.profile_banner_url, download_image_url));
+            userImagesObject.profile_banner_url = download_image_url;
+          }
+
+          data.user_images.push(userImagesObject);
         });
+
+         console.log(JSON.stringify(data.user_images, null, 2));
+
+        Promise.all(downloadPromises).then(() => {
+          console.log(data.user_images.length);
+          console.log('\n\ndone')
+        })
+        .catch((error) => {
+          console.log(error)
+        })
       });
     })
     .catch((error) => {
       console.log(error);
     })
   });
+}
+
+function getFileFormatByUrl(url) {
+  let format = '.png';
+  const lastPointIndex = url.lastIndexOf('.');
+  const lastSlashIndex =  url.lastIndexOf('/');
+  if (lastPointIndex && lastSlashIndex && lastSlashIndex < lastPointIndex) {
+    format = url.substring(lastPointIndex);
+  }
+
+  return format;
 }
 
 

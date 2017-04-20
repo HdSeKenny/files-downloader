@@ -21,6 +21,7 @@ const downloadPromise = (uri, filename) => new Promise ((resolve, reject) => {
         process.stdout.write(`Downloading: ${percentage}%`);
       })
       .on('error', (err) => {
+        console.log(uri, filename)
         reject(err)
       })
       .pipe(fs.createWriteStream(filename)).on('close', () => {
@@ -54,9 +55,9 @@ const download = (uri, filename, callback) => {
 };
 
 
-downloadPromise('https://www.google.com/images/srpr/logo3w.png', 'google.png')
-  .then(() => {
-    console.log('\ndone');
-  })
+// downloadPromise('https://www.google.com/images/srpr/logo3w.png', 'google.png')
+//   .then(() => {
+//     console.log('\ndone');
+//   })
 
-// module.exports = download;
+module.exports = downloadPromise;

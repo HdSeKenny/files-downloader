@@ -7,6 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Kenny",
+  "description": "files download tool",
+  "repository": "git@github.com:HdSeKenny/files-downloader.git",
   "license": "ISC",
   "dependencies": {
     "express": "^4.15.2",
