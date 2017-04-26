@@ -1,18 +1,18 @@
 {
   "name": "json-convert",
   "version": "1.0.0",
-  "description": "",
+  "description": "files download tool",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Kenny",
-  "description": "files download tool",
   "repository": "git@github.com:HdSeKenny/files-downloader.git",
   "license": "ISC",
   "dependencies": {
     "express": "^4.15.2",
     "fs": "0.0.1-security",
+    "mongodb": "^2.2.26",
     "readline": "^1.3.0",
     "request": "^2.81.0",
     "request-progress": "^3.0.0"
