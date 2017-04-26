@@ -40,60 +40,54 @@ function readFiles(dirname) {
     filenames.forEach((filename) => {
       readFilePromises.push(filePromise(dirname, filename));
     });
+
     Promise.all(readFilePromises)
       .then(() => {
-        const sweetsJson = JSON.stringify(data, null, 2);
-        fs.writeFile('sweets.json', sweetsJson, 'utf8', () => {
-          console.log('\ndone...');
-        });
+        const downloadPromises = [];
+        data.sweets.forEach((sweet, index) => {
+          const { user } = sweet;
+          const userImagesObject = {
+            id: user.id,
+            id_str: user.id_str
+          };
 
-        // const downloadPromises = [];
-        // data.sweets.forEach((sweet, index) => {
-        //   const { user } = sweet;
-        //   const userImagesObject = {
-        //     id: user.id,
-        //     id_str: user.id_str
-        //   };
+          if (user.profile_background_image_url) {
+            const fileFormat = getFileFormatByUrl(user.profile_background_image_url);
+            const download_image_url = `images/${user.id_str}${fileFormat}`;
+            downloadPromises.push(download(user.profile_background_image_url, download_image_url));
+            userImagesObject.profile_background_image_url = download_image_url;
+          }
 
-        // if (user.profile_background_image_url) {
-        //   const fileFormat = getFileFormatByUrl(user.profile_background_image_url);
-        //   const download_image_url = `images/${user.id_str}${fileFormat}`;
-        //   downloadPromises.push(download(user.profile_background_image_url, download_image_url));
-        //   userImagesObject.profile_background_image_url = download_image_url;
-        // }
+          if (user.profile_image_url) {
+            const fileFormat = getFileFormatByUrl(user.profile_image_url);
+            const download_image_url = `images/${user.id_str}${fileFormat}`;
+            downloadPromises.push(download(user.profile_image_url, download_image_url));
+            userImagesObject.profile_image_url = download_image_url;
+          }
 
-        // if (user.profile_background_image_url_https) {
-        //   const fileFormat = getFileFormatByUrl(user.profile_background_image_url_https);
-        //   const download_image_url = `images/${user.id_str}${fileFormat}`;
-        //   downloadPromises.push(download(user.profile_background_image_url_https, download_image_url));
-        //   userImagesObject.profile_background_image_url_https = download_image_url;
-        // }
+          data.user_images.push(userImagesObject);
+        })
 
-        // if (user.profile_image_url) {
-        //   const fileFormat = getFileFormatByUrl(user.profile_image_url);
-        //   const download_image_url = `images/${user.id_str}${fileFormat}`;
-        //   downloadPromises.push(download(user.profile_image_url, download_image_url));
-        //   userImagesObject.profile_image_url = download_image_url;
-        // }
 
-        // if (user.profile_image_url_https) {
-        //   const fileFormat = getFileFormatByUrl(user.profile_image_url_https);
-        //   const download_image_url = `images/${user.id_str}${fileFormat}`;
-        //   downloadPromises.push(download(user.profile_image_url_https, download_image_url));
-        //   userImagesObject.profile_image_url_https = download_image_url;
-        // }
-
-        // data.user_images.push(userImagesObject);
       })
       .catch((error) => {
         console.log(error);
       });
-    // Promise.all(downloadPromises).then(() => {
 
-    // })
-    // .catch((error) => {
-    //   console.log(error);
-    // });
+      Promise.all(downloadPromises).then(() => {
+        const sweetsJson = JSON.stringify(data, null, 2);
+        fs.writeFile('sweets.json', sweetsJson, 'utf8', () => {
+          console.log(data.user_images.length);
+          console.log('\ndone...');
+        })
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+    })
+    .catch((error) => {
+      console.log(error);
+    })
   });
 }
 

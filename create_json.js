@@ -7,7 +7,6 @@ const exampleSweets = [];
 const exampleUsers = [];
 const readFilePromises = [];
 
-
 const readFiles = (dirname, callback) => {
   fs.readdir(dirname, (err, filenames) => {
     if (err) {
